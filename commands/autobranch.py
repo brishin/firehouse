@@ -1,6 +1,8 @@
 from git import Repo
 import re
 import textwrap
+from typing import List
+import os
 import sys
 
 REPO_DIR = "/Users/bshin/software"
@@ -42,8 +44,11 @@ def _create_or_update_branch(commit, branch_name):
 
 class Autobranch:
     def handler(self, args):
-        repo = Repo(REPO_DIR)
+        repo = Repo(os.getcwd())
         commits = list(repo.iter_commits(args.revs))
+        self.run(repo, commits)
+
+    def run(self, repo, commits) -> List[str]:
         commits.reverse()
         print(f"Found {len(commits)} commits.")
         if len(commits) > 30:
@@ -97,6 +102,8 @@ class Autobranch:
         last_branch = created_branches[-1]
         if repo.active_branch != last_branch:
             last_branch.checkout()
+
+        return created_branches
 
     def register_command(self, parser):
         ab_parser = parser.add_parser(
