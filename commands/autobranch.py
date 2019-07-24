@@ -11,7 +11,7 @@ SAFETY_LIMIT = 30
 
 
 def _parse_git_message(message):
-    match = re.match(r"\[([^\]\s]+)\]\[(\d+)\]", message)
+    match = re.match(r"\[([^\]\s]+)\]\[([^\]\s]+)\]", message)
     if match is None:
         simple_match = re.match(r"\[([^\]\s]+)\]", message)
         if simple_match is None:
