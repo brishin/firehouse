@@ -46,12 +46,12 @@ class Autobranch:
     def handler(self, args):
         repo = Repo(os.getcwd())
         commits = list(repo.iter_commits(args.revs))
-        self.run(repo, commits)
+        self.run(repo, commits, **vars(args))
 
-    def run(self, repo, commits) -> List[str]:
+    def run(self, repo, commits, **kwargs) -> List[str]:
         commits.reverse()
         print(f"Found {len(commits)} commits.")
-        if len(commits) > 30:
+        if len(commits) > 30 and not kwargs.get('skip', False):
             print("Stopping because number of commits exceeded the safety limit.")
             sys.exit(1)
 
@@ -74,6 +74,9 @@ class Autobranch:
                 current_branch = branch_name
 
             if current_branch is None:
+                if kwargs.get('skip', False):
+                    continue
+
                 print("Expected commit to have a branch name")
                 sys.exit(1)
 
@@ -115,5 +118,10 @@ class Autobranch:
             "--revs",
             default="develop..HEAD",
             help="Rev specifier of commits to look at.",
+        )
+        ab_parser.add_argument(
+            "--skip",
+            action="store_true",
+            help="If set, skips any unknown commits instead of failing.",
         )
         ab_parser.set_defaults(handler=self.handler)
